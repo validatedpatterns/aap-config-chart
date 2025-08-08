@@ -8,6 +8,8 @@ kind: RoleBinding
 {{- end }}
 metadata:
   name: {{ .name }}
+  annotations:
+      argocd.argoproj.io/sync-wave: "1"
 {{- if eq $value.scope.cluster false }}
   namespace: {{ $value.scope.namespace }}
 {{- end }}

@@ -4,6 +4,8 @@ kind: ConfigMap
 metadata:
   name: helm-values
   namespace: aap-config
+  annotations:
+      argocd.argoproj.io/sync-wave: "1"
 data:
   values.yaml: |
     {{ tpl $valuesyaml . | nindent 4 }}

@@ -6,11 +6,15 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   name: {{ .name }}
+  annotations:
+      argocd.argoproj.io/sync-wave: "1"
 {{- else }}
 kind: Role
 metadata:
   name: {{ $value.name }}
   namespace: {{ $value.scope.namespace}}
+  annotations:
+      argocd.argoproj.io/sync-wave: "1"
 {{- end }}
 rules:
   - apiGroups:
