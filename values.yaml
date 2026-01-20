@@ -30,7 +30,7 @@ serviceAccountNamespace: aap-config
 # Validation job configuration
 validationJob:
   disabled: false
-  activeDeadlineSeconds: 600
+  activeDeadlineSeconds: 3600
 
 # RBAC configuration using vp-rbac subchart
 vp-rbac:
@@ -44,27 +44,27 @@ vp-rbac:
         clusterRoles:
           - view-secrets-cms
           - view-routes
-          
+
   clusterRoles:
     view-secrets-cms:
       rules:
       - apiGroups: [""]
         resources: ["secrets", "configmaps"]
         verbs: ["get", "list", "watch"]
-        
+
     view-routes:
       rules:
       - apiGroups: ["route.openshift.io"]
         resources: ["routes"]
         verbs: ["get", "list", "watch"]
-    
+
   roles:
     view-all:
       rules:
       - apiGroups: ["*"]
         resources: ["*"]
         verbs: ["get", "list", "watch"]
-    
+
     # RBAC for external secrets validation (namespace-scoped)
     external-secrets-validator:
       rules:

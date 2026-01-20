@@ -1,6 +1,6 @@
 # aap-config
 
-![Version: 0.1.4](https://img.shields.io/badge/Version-0.1.4-informational?style=flat-square)
+![Version: 0.1.5](https://img.shields.io/badge/Version-0.1.5-informational?style=flat-square)
 
 A Helm chart to build and deploy secrets using external-secrets for ansible-edge-gitops
 
@@ -19,6 +19,9 @@ the 10-minute mark instead of every ten minutes as previously).
 * v0.1.4: Use vp-rbac subchart to configure RBACs instead of local code. Introduce
 external secrets validation job to prevent argo from proceeding past ES creation and
 erroring out early.
+
+* v0.1.5: Extend default deadline for external secret validation job. Remove
+namespaces from external secrets validation.
 
 ## Requirements
 
@@ -47,7 +50,7 @@ erroring out early.
 | secretStore.name | string | `"vault-backend"` |  |
 | serviceAccountName | string | `"aap-config-sa"` |  |
 | serviceAccountNamespace | string | `"aap-config"` |  |
-| validationJob.activeDeadlineSeconds | int | `600` |  |
+| validationJob.activeDeadlineSeconds | int | `3600` |  |
 | validationJob.disabled | bool | `false` |  |
 | vp-rbac.clusterRoles.view-routes.rules[0].apiGroups[0] | string | `"route.openshift.io"` |  |
 | vp-rbac.clusterRoles.view-routes.rules[0].resources[0] | string | `"routes"` |  |
