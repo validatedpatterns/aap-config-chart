@@ -3,7 +3,7 @@ description: A Helm chart to build and deploy secrets using external-secrets for
 keywords:
 - pattern
 name: aap-config
-version: 0.1.5
+version: 0.2.0
 dependencies:
 - name: vp-rbac
   version: '0.1.*'

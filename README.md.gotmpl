@@ -24,6 +24,10 @@ erroring out early.
 * v0.1.5: Extend default deadline for external secret validation job. Remove
 namespaces from external secrets validation.
 
+* v0.2.0: **Breaking** External Secrets API Version updated to `v1` from `v1beta1`.
+To use this version, you will also need to update your pattern to use the
+`openshift-external-secrets-operator` and `openshift-external-secrets` helm chart.
+
 {{ template "chart.homepageLine" . }}
 
 {{ template "chart.maintainersSection" . }}

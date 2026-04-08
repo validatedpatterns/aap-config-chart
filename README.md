@@ -1,6 +1,6 @@
 # aap-config
 
-![Version: 0.1.5](https://img.shields.io/badge/Version-0.1.5-informational?style=flat-square)
+![Version: 0.2.0](https://img.shields.io/badge/Version-0.2.0-informational?style=flat-square)
 
 A Helm chart to build and deploy secrets using external-secrets for ansible-edge-gitops
 
@@ -22,6 +22,10 @@ erroring out early.
 
 * v0.1.5: Extend default deadline for external secret validation job. Remove
 namespaces from external secrets validation.
+
+* v0.2.0: **Breaking** External Secrets API Version updated to `v1` from `v1beta1`.
+To use this version, you will also need to update your pattern to use the
+`openshift-external-secrets-operator` and `openshift-external-secrets` helm chart.
 
 ## Requirements
 
