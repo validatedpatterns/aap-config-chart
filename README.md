@@ -30,6 +30,48 @@ To use this version, you will also need to update your pattern to use the
 * v0.2.1: Support credential (HTTPS or SSH) injection for git client in AGOF config
 jobs.
 
+### VP-Secrets-v2
+
+```yaml
+---
+# NEVER COMMIT THESE VALUES TO GIT
+version: "2.0"
+secrets:
+  - name: aap-manifest
+    fields:
+    - name: b64content
+      path: 'full pathname of file containing Satellite Manifest for entitling Ansible Automation Platform'
+      base64: true
+
+  - name: automation-hub-token
+    fields:
+    - name: token
+      value: 'An automation hub token for retrieving Certified and Validated Ansible content'
+
+  # Optional
+  - name: agof-vault-file
+    fields:
+    - name: agof-vault-file
+      path: 'full pathname of a valid agof_vault file for secrets to overlay the iac config'
+      base64: true
+
+  # Optional, if git auth is needed
+  - name: git-auth-secret
+    fields:
+    # HTTPS auth
+    - name: username
+      value: "Username to authenticate with"
+    - value: password
+      value: "Password to authenticate with"
+    # SSH auth
+    - name: .git-credentials
+      value: "git credentials"
+    - name: ssh-privatekey
+      value: "An ssh private key"
+    - name: known_hosts
+      value: "SSH known hosts for SSH authentication"
+```
+
 ## Requirements
 
 | Repository | Name | Version |
