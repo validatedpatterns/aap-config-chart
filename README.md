@@ -1,6 +1,6 @@
 # aap-config
 
-![Version: 0.2.0](https://img.shields.io/badge/Version-0.2.0-informational?style=flat-square)
+![Version: 0.2.1](https://img.shields.io/badge/Version-0.2.1-informational?style=flat-square)
 
 A Helm chart to build and deploy secrets using external-secrets for ansible-edge-gitops
 
@@ -27,6 +27,9 @@ namespaces from external secrets validation.
 To use this version, you will also need to update your pattern to use the
 `openshift-external-secrets-operator` and `openshift-external-secrets` helm chart.
 
+* v0.2.1: Support credential (HTTPS or SSH) injection for git client in AGOF config
+jobs.
+
 ## Requirements
 
 | Repository | Name | Version |
@@ -42,6 +45,9 @@ To use this version, you will also need to update your pattern to use the
 | agof.agof_revision | string | `"v2"` |  |
 | agof.automationHubTokenKey | string | `"secret/data/hub/automation-hub-token"` |  |
 | agof.extraPlaybookOpts | string | `""` |  |
+| agof.gitAuthHttpsStyle | string | `"auto"` |  |
+| agof.gitAuthSecret | string | `""` |  |
+| agof.gitAuthVaultKey | string | `""` |  |
 | agof.iac_repo | string | `"https://github.com/validatedpatterns-demos/ansible-edge-gitops-hmi-config-as-code.git"` |  |
 | agof.iac_revision | string | `"main"` |  |
 | agof.vaultFileKey | string | `"secret/data/hub/agof-vault-file"` |  |
