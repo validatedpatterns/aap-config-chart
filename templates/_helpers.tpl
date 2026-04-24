@@ -28,6 +28,7 @@ initContainers:
           set -euo pipefail
           export GIT_TERMINAL_PROMPT=0
           agof_repo_url={{ $.Values.agof.agof_repo | quote }}
+          iac_repo_url={{ $.Values.agof.iac_repo | quote }}
           base64 -d /pattern-home/agof-vault-file/agof-vault-file > ~/agof_vault.yml
 {{- if $.Values.agof.gitAuthSecret }}
           GIT_AUTH_DIR=/pattern-home/git-auth
@@ -55,7 +56,17 @@ initContainers:
                 echo "${BASH_REMATCH[1]}"
               elif [[ "$u" =~ ^git@([^:]+): ]]; then
                 echo "${BASH_REMATCH[1]}"
+              elif [[ "$u" =~ ^ssh://[^@]+@([^/:]+) ]]; then
+                echo "${BASH_REMATCH[1]}"
               fi
+            }
+            agof_unique_git_hosts() {
+              local url h
+              for url in "$@"; do
+                [[ -z "$url" ]] && continue
+                h=$(agof_git_host_from_url "$url") || true
+                [[ -n "$h" ]] && printf '%s\n' "$h"
+              done | awk '!x[$0]++'
             }
             agof_https_store_credential() {
               local host="$1" user="$2" pass="$3"
@@ -80,28 +91,37 @@ initContainers:
                 *) printf '%s' 'git' ;;
               esac
             }
-            host="$(agof_git_host_from_url "$agof_repo_url")"
             https_style={{ default "auto" $.Values.agof.gitAuthHttpsStyle | quote }}
             if [[ -f "$GIT_AUTH_DIR/username" ]] && { [[ -f "$GIT_AUTH_DIR/password" ]] || [[ -f "$GIT_AUTH_DIR/token" ]]; }; then
-              if [[ -z "$host" ]]; then
-                echo "agof.gitAuthSecret: could not parse git host from agof_repo for HTTPS credentials" >&2
-                exit 1
-              fi
               u=$(cat "$GIT_AUTH_DIR/username")
               if [[ -f "$GIT_AUTH_DIR/token" ]]; then
                 p=$(cat "$GIT_AUTH_DIR/token")
               else
                 p=$(cat "$GIT_AUTH_DIR/password")
               fi
-              agof_https_store_credential "$host" "$u" "$p"
-            elif [[ -f "$GIT_AUTH_DIR/token" ]] && [[ ! -f "$GIT_AUTH_DIR/username" ]]; then
-              if [[ -z "$host" ]]; then
-                echo "agof.gitAuthSecret: could not parse git host from agof_repo for HTTPS token" >&2
+              host_any=""
+              while IFS= read -r host; do
+                [[ -z "$host" ]] && continue
+                host_any=1
+                agof_https_store_credential "$host" "$u" "$p"
+              done < <(agof_unique_git_hosts "$agof_repo_url" "$iac_repo_url")
+              if [[ -z "$host_any" ]]; then
+                echo "agof.gitAuthSecret: could not parse git host from agof_repo or iac_repo for HTTPS credentials" >&2
                 exit 1
               fi
+            elif [[ -f "$GIT_AUTH_DIR/token" ]] && [[ ! -f "$GIT_AUTH_DIR/username" ]]; then
               p=$(cat "$GIT_AUTH_DIR/token")
-              u="$(agof_https_user_for_style "$host" "$https_style")"
-              agof_https_store_credential "$host" "$u" "$p"
+              host_any=""
+              while IFS= read -r host; do
+                [[ -z "$host" ]] && continue
+                host_any=1
+                u="$(agof_https_user_for_style "$host" "$https_style")"
+                agof_https_store_credential "$host" "$u" "$p"
+              done < <(agof_unique_git_hosts "$agof_repo_url" "$iac_repo_url")
+              if [[ -z "$host_any" ]]; then
+                echo "agof.gitAuthSecret: could not parse git host from agof_repo or iac_repo for HTTPS token" >&2
+                exit 1
+              fi
             fi
           fi
 {{- end }}
