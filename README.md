@@ -1,6 +1,6 @@
 # aap-config
 
-![Version: 0.2.0](https://img.shields.io/badge/Version-0.2.0-informational?style=flat-square)
+![Version: 0.2.1](https://img.shields.io/badge/Version-0.2.1-informational?style=flat-square)
 
 A Helm chart to build and deploy secrets using external-secrets for ansible-edge-gitops
 
@@ -27,6 +27,51 @@ namespaces from external secrets validation.
 To use this version, you will also need to update your pattern to use the
 `openshift-external-secrets-operator` and `openshift-external-secrets` helm chart.
 
+* v0.2.1: Support credential (HTTPS or SSH) injection for git client in AGOF config
+jobs.
+
+### VP-Secrets-v2
+
+```yaml
+---
+# NEVER COMMIT THESE VALUES TO GIT
+version: "2.0"
+secrets:
+  - name: aap-manifest
+    fields:
+    - name: b64content
+      path: 'full pathname of file containing Satellite Manifest for entitling Ansible Automation Platform'
+      base64: true
+
+  - name: automation-hub-token
+    fields:
+    - name: token
+      value: 'An automation hub token for retrieving Certified and Validated Ansible content'
+
+  # Optional
+  - name: agof-vault-file
+    fields:
+    - name: agof-vault-file
+      path: 'full pathname of a valid agof_vault file for secrets to overlay the iac config'
+      base64: true
+
+  # Optional, if git auth is needed
+  - name: git-auth-secret
+    fields:
+    # HTTPS auth
+    - name: username
+      value: "Username to authenticate with"
+    - value: password
+      value: "Password to authenticate with"
+    # SSH auth
+    - name: .git-credentials
+      value: "git credentials"
+    - name: ssh-privatekey
+      value: "An ssh private key"
+    - name: known_hosts
+      value: "SSH known hosts for SSH authentication"
+```
+
 ## Requirements
 
 | Repository | Name | Version |
@@ -42,6 +87,9 @@ To use this version, you will also need to update your pattern to use the
 | agof.agof_revision | string | `"v2"` |  |
 | agof.automationHubTokenKey | string | `"secret/data/hub/automation-hub-token"` |  |
 | agof.extraPlaybookOpts | string | `""` |  |
+| agof.gitAuthHttpsStyle | string | `"auto"` |  |
+| agof.gitAuthSecret | string | `""` |  |
+| agof.gitAuthVaultKey | string | `""` |  |
 | agof.iac_repo | string | `"https://github.com/validatedpatterns-demos/ansible-edge-gitops-hmi-config-as-code.git"` |  |
 | agof.iac_revision | string | `"main"` |  |
 | agof.vaultFileKey | string | `"secret/data/hub/agof-vault-file"` |  |

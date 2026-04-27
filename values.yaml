@@ -13,6 +13,21 @@ agof:
 
   agof_repo: https://github.com/validatedpatterns/agof.git
   agof_revision: v2
+  # Optional: name of an existing Secret (same namespace) whose keys are mounted for
+  # git in the agof-init container (clone agof_repo) and the agof-config container
+  # (e.g. clone/fetch iac_repo during make). Use one of:
+  # - .git-credentials: full git-credential-store line(s) for HTTPS
+  # - ssh-privatekey (+ optional known_hosts): SSH private key (e.g. kubernetes.io/ssh-auth)
+  # - HTTPS: username + (password or token), or token-only with gitAuthHttpsStyle below
+  gitAuthSecret: ''
+  # Optional Vault path: when set (with gitAuthSecret), an ExternalSecret is created that uses
+  # dataFrom.extract to copy all fields from that Vault secret into the Kubernetes Secret named
+  # gitAuthSecret (same pattern as vaultFileKey / agof-vault-file).
+  gitAuthVaultKey: ''
+  # When the Secret has only a "token" key: how to pick the HTTPS username (PAT / OAuth).
+  # auto: from each repo URL host (github.com -> git; gitlab / gitea / forgejo / codeberg -> oauth2)
+  # github|gitlab|gitea: force that platform's usual clone user (git / oauth2 / oauth2)
+  gitAuthHttpsStyle: auto
 
   iac_repo: https://github.com/validatedpatterns-demos/ansible-edge-gitops-hmi-config-as-code.git
   iac_revision: main

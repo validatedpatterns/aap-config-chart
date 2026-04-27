@@ -1,9 +1,11 @@
+---
 apiVersion: v2
 description: A Helm chart to build and deploy secrets using external-secrets for ansible-edge-gitops
+home: https://github.com/validatedpatterns/aap-config-chart.git
 keywords:
 - pattern
 name: aap-config
-version: 0.2.0
+version: 0.2.1
 dependencies:
 - name: vp-rbac
   version: '0.1.*'
