@@ -5,9 +5,11 @@ volumes:
   - name: agof-scratch-space
     emptyDir:
       sizeLimit: 5Gi
+{{- if $.Values.agof.vaultFileKey }}
   - name: agof-vault-file
     secret:
       secretName: agof-vault-file
+{{- end }}
 {{- if $.Values.agof.gitAuthSecret }}
   - name: agof-git-auth
     secret:
@@ -29,7 +31,11 @@ initContainers:
           export GIT_TERMINAL_PROMPT=0
           agof_repo_url={{ $.Values.agof.agof_repo | quote }}
           iac_repo_url={{ $.Values.agof.iac_repo | quote }}
+{{- if $.Values.agof.vaultFileKey }}
           base64 -d /pattern-home/agof-vault-file/agof-vault-file > ~/agof_vault.yml
+{{- else }}
+          printf '%s\n' '{}' > ~/agof_vault.yml
+{{- end }}
 {{- if $.Values.agof.gitAuthSecret }}
           GIT_AUTH_DIR=/pattern-home/git-auth
           if [[ -f "$GIT_AUTH_DIR/.git-credentials" ]]; then
@@ -130,8 +136,10 @@ initContainers:
     volumeMounts:
       - name: agof-scratch-space
         mountPath: /pattern-home
+{{- if $.Values.agof.vaultFileKey }}
       - name: agof-vault-file
         mountPath: /pattern-home/agof-vault-file
+{{- end }}
 {{- if $.Values.agof.gitAuthSecret }}
       - name: agof-git-auth
         mountPath: /pattern-home/git-auth
@@ -155,6 +163,8 @@ containers:
     volumeMounts:
       - name: agof-scratch-space
         mountPath: /pattern-home
+{{- if $.Values.agof.vaultFileKey }}
       - name: agof-vault-file
         mountPath: /pattern-home/agof-vault-file
+{{- end }}
 {{- end }} {{/* aap-config.app.configjobspec */}}

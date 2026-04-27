@@ -7,7 +7,11 @@ aapManifest:
   key: secret/data/hub/aap-manifest
 
 agof:
-  vaultFileKey: secret/data/hub/agof-vault-file
+  doAutoHubVaultConfig: true
+  # When non-empty: ExternalSecret agof-vault-file + mount for agof overlay secrets.
+  # Set to "" to skip Vault-backed agof vault file (init writes a minimal empty ~/agof_vault.yml).
+  # Set to "secret/data/hub/agof-vault-file to use one if you need it
+  vaultFileKey: ""
   automationHubTokenKey: secret/data/hub/automation-hub-token
   extraPlaybookOpts: ''
 
