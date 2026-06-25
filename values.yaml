@@ -19,7 +19,7 @@ agof:
   agof_revision: v2
   # Optional: name of an existing Secret (same namespace) whose keys are mounted for
   # git in the agof-init container (clone agof_repo) and the agof-config container
-  # (e.g. clone/fetch iac_repo during make). Use one of:
+  # (e.g. clone/fetch the config-as-code repo during make). Use one of:
   # - .git-credentials: full git-credential-store line(s) for HTTPS
   # - ssh-privatekey (+ optional known_hosts): SSH private key (e.g. kubernetes.io/ssh-auth)
   # - HTTPS: username + (password or token), or token-only with gitAuthHttpsStyle below
@@ -33,6 +33,9 @@ agof:
   # github|gitlab|gitea: force that platform's usual clone user (git / oauth2 / oauth2)
   gitAuthHttpsStyle: auto
 
+  # Config-as-code repository checked out during configure_aap (cac_* preferred over iac_*)
+  cac_repo: ''
+  cac_revision: ''
   iac_repo: https://github.com/validatedpatterns-demos/ansible-edge-gitops-hmi-config-as-code.git
   iac_revision: main
 
