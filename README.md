@@ -1,6 +1,6 @@
 # aap-config
 
-![Version: 0.3.0](https://img.shields.io/badge/Version-0.3.0-informational?style=flat-square)
+![Version: 0.2.3](https://img.shields.io/badge/Version-0.2.3-informational?style=flat-square)
 
 A Helm chart to build and deploy secrets using external-secrets for ansible-edge-gitops
 
@@ -33,7 +33,7 @@ jobs.
 * v0.2.2: Make agof-vault-file optional. Allow for skipping of the local Vault Hub
 instance integration if desired.
 
-* v0.3.0: Align with AGOF config-as-code naming and git authentication. Add
+* v0.2.3: Align with AGOF config-as-code naming and git authentication. Add
 `agof.cac_repo` / `agof.cac_revision` (preferred over legacy `iac_repo` /
 `iac_revision`). Git credential injection in init now covers both AGOF and the
 config-as-code repo URL. Requires a compatible AGOF revision (see agof README
