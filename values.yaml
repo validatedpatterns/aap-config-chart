@@ -32,6 +32,9 @@ agof:
   # auto: from each repo URL host (github.com -> git; gitlab / gitea / forgejo / codeberg -> oauth2)
   # github|gitlab|gitea: force that platform's usual clone user (git / oauth2 / oauth2)
   gitAuthHttpsStyle: auto
+  # Verify TLS certificates for HTTPS git clone/fetch (agof-init and AGOF config-repo checkout).
+  # Set to false when agof_repo or the config-as-code repo uses a private CA (lab use only).
+  gitHttpsSslVerify: true
 
   # Config-as-code repository checked out during configure_aap (cac_* preferred over iac_*)
   cac_repo: ''

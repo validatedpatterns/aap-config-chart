@@ -1,6 +1,6 @@
 # aap-config
 
-![Version: 0.2.3](https://img.shields.io/badge/Version-0.2.3-informational?style=flat-square)
+![Version: 0.2.4](https://img.shields.io/badge/Version-0.2.4-informational?style=flat-square)
 
 A Helm chart to build and deploy secrets using external-secrets for ansible-edge-gitops
 
@@ -39,6 +39,11 @@ instance integration if desired.
 config-as-code repo URL. Requires a compatible AGOF revision (see agof README
 OpenShift section).
 
+* v0.2.4: Add `agof.gitHttpsSslVerify` to disable TLS verification for HTTPS
+git operations when `agof_repo` or the config-as-code repo uses an untrusted or
+private CA (lab use only). Applies to the init-container AGOF clone and is passed
+through to AGOF for the config-as-code checkout.
+
 ### Git authentication secret (`agof.gitAuthSecret`)
 
 When `agof_repo` or the config-as-code repo (`agof.cac_repo` / `agof.iac_repo`) is
@@ -58,6 +63,22 @@ agof:
   # Used only for token-only HTTPS Secrets (see examples)
   gitAuthHttpsStyle: auto   # auto | github | gitlab | gitea
 ```
+
+### HTTPS TLS verification (`agof.gitHttpsSslVerify`)
+
+By default, HTTPS git operations validate the server TLS certificate against the
+container trust store. When `agof_repo` or the config-as-code repo
+(`agof.cac_repo` / `agof.iac_repo`) is served by a host with a private or
+corporate CA that is not installed in the image, set:
+
+```yaml
+agof:
+  gitHttpsSslVerify: false
+```
+
+This disables certificate verification for the init-container clone of AGOF and
+for the config-as-code repo checkout during `configure_aap`. Prefer installing the
+CA in the container image or on the provisioner for production.
 
 #### HTTPS: pre-built `.git-credentials` store
 
@@ -261,6 +282,7 @@ secrets:
 | agof.gitAuthHttpsStyle | string | `"auto"` |  |
 | agof.gitAuthSecret | string | `""` |  |
 | agof.gitAuthVaultKey | string | `""` |  |
+| agof.gitHttpsSslVerify | bool | `true` |  |
 | agof.iac_repo | string | `"https://github.com/validatedpatterns-demos/ansible-edge-gitops-hmi-config-as-code.git"` |  |
 | agof.iac_revision | string | `"main"` |  |
 | agof.vaultFileKey | string | `""` |  |
