@@ -40,6 +40,173 @@ instance integration if desired.
 config-as-code repo URL. Requires a compatible AGOF revision (see agof README
 OpenShift section).
 
+### Git authentication secret (`agof.gitAuthSecret`)
+
+When `agof_repo` or the config-as-code repo (`agof.cac_repo` / `agof.iac_repo`) is
+private, set `agof.gitAuthSecret` to the name of a Kubernetes Secret in the same
+namespace. The init container mounts that Secret and configures git before cloning
+AGOF. Use **one** authentication shape per Secret; the chart checks mechanisms in
+this order: `.git-credentials`, then `ssh-privatekey`, then HTTPS
+`username`/`password`/`token`.
+
+Pattern Helm values:
+
+```yaml
+agof:
+  gitAuthSecret: git-auth-secret
+  # Optional: populate the Secret from Vault via External Secrets (VP-Secrets-v2 below)
+  gitAuthVaultKey: secret/data/hub/git-auth-secret
+  # Used only for token-only HTTPS Secrets (see examples)
+  gitAuthHttpsStyle: auto   # auto | github | gitlab | gitea
+```
+
+#### HTTPS: pre-built `.git-credentials` store
+
+Secret key `.git-credentials` is copied to `~/.git-credentials` and used with
+`credential.helper store`. One line per host; credentials apply to both AGOF and
+the config-as-code repo when the host matches.
+
+VP-Secrets-v2:
+
+```yaml
+  - name: git-auth-secret
+    fields:
+    - name: .git-credentials
+      value: |
+        https://x-access-token:ghp_xxxxxxxxxxxxxxxxxxxx@github.com
+```
+
+Multiple hosts (GitLab, Forgejo, etc.):
+
+```yaml
+  - name: git-auth-secret
+    fields:
+    - name: .git-credentials
+      value: |
+        https://oauth2:glpat-xxxxxxxxxxxxxxxxxxxx@gitlab.com
+        https://my-gitea-user:0123456789abcdef0123456789abcdef01234567@forgejo.example.com
+```
+
+#### HTTPS: `username` + `password` or `token`
+
+The init container writes a git credential-store entry for each unique host parsed
+from `agof_repo` and the config-as-code repo URL.
+
+Username and password:
+
+```yaml
+  - name: git-auth-secret
+    fields:
+    - name: username
+      value: my-gitea-user
+    - name: password
+      value: my-secret-password
+```
+
+Username and token (PAT / deploy token):
+
+```yaml
+  - name: git-auth-secret
+    fields:
+    - name: username
+      value: x-access-token
+    - name: token
+      value: ghp_xxxxxxxxxxxxxxxxxxxx
+```
+
+#### HTTPS: `token` only
+
+When the Secret has a `token` key but no `username`, the chart picks the HTTPS
+username from `agof.gitAuthHttpsStyle` and the repo host (`auto`: GitHub → `git`,
+GitLab / Gitea / Forgejo / Codeberg → `oauth2`, otherwise `git`).
+
+GitHub PAT:
+
+```yaml
+agof:
+  gitAuthSecret: git-auth-secret
+  gitAuthVaultKey: secret/data/hub/git-auth-secret
+  gitAuthHttpsStyle: auto
+
+secrets:
+  - name: git-auth-secret
+    fields:
+    - name: token
+      value: ghp_xxxxxxxxxxxxxxxxxxxx
+```
+
+GitLab project or group access token:
+
+```yaml
+  - name: git-auth-secret
+    fields:
+    - name: token
+      value: glpat-xxxxxxxxxxxxxxxxxxxx
+```
+
+Force a platform username when `auto` does not match your host (for example a
+self-managed GitLab hostname):
+
+```yaml
+agof:
+  gitAuthSecret: git-auth-secret
+  gitAuthHttpsStyle: gitlab
+
+secrets:
+  - name: git-auth-secret
+    fields:
+    - name: token
+      value: glpat-xxxxxxxxxxxxxxxxxxxx
+```
+
+#### SSH: `ssh-privatekey` (+ optional `known_hosts`)
+
+Secret key `ssh-privatekey` is installed as `~/.ssh/id_rsa`. When `known_hosts` is
+present it is copied to `~/.ssh/known_hosts` and SSH uses strict host key
+checking. When `known_hosts` is omitted, SSH uses `StrictHostKeyChecking=accept-new`
+for the clone.
+
+Deploy key with pinned host key (recommended):
+
+```yaml
+  - name: git-auth-secret
+    fields:
+    - name: ssh-privatekey
+      path: /path/to/deploy_key   # or use value: with inline PEM/OpenSSH key
+    - name: known_hosts
+      value: |
+        github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAI...
+      # obtain with: ssh-keyscan -t ed25519 github.com
+```
+
+Deploy key without `known_hosts` (accepts the host key on first connect):
+
+```yaml
+  - name: git-auth-secret
+    fields:
+    - name: ssh-privatekey
+      value: |
+        -----BEGIN OPENSSH PRIVATE KEY-----
+        ...
+        -----END OPENSSH PRIVATE KEY-----
+```
+
+Self-managed Forgejo / Gitea:
+
+```yaml
+  - name: git-auth-secret
+    fields:
+    - name: ssh-privatekey
+      path: /path/to/forgejo_deploy_key
+    - name: known_hosts
+      value: |
+        forgejo.example.com ssh-ed25519 AAAA...
+```
+
+You can also create the Secret directly (for example `kubernetes.io/ssh-auth`) as
+long as the data keys are `ssh-privatekey` and optionally `known_hosts`, and
+`agof.gitAuthSecret` points at that Secret name.
+
 ### VP-Secrets-v2
 
 ```yaml
@@ -65,21 +232,11 @@ secrets:
       path: 'full pathname of a valid agof_vault file for secrets to overlay the iac config'
       base64: true
 
-  # Optional, if git auth is needed
+  # Optional: private git auth for agof_repo and/or config-as-code repo (see section above)
   - name: git-auth-secret
     fields:
-    # HTTPS auth
-    - name: username
-      value: "Username to authenticate with"
-    - value: password
-      value: "Password to authenticate with"
-    # SSH auth
-    - name: .git-credentials
-      value: "git credentials"
-    - name: ssh-privatekey
-      value: "An ssh private key"
-    - name: known_hosts
-      value: "SSH known hosts for SSH authentication"
+    - name: token
+      value: ghp_xxxxxxxxxxxxxxxxxxxx
 ```
 
 {{ template "chart.homepageLine" . }}
