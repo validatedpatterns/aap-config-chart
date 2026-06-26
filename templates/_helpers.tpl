@@ -30,7 +30,7 @@ initContainers:
           set -euo pipefail
           export GIT_TERMINAL_PROMPT=0
           agof_repo_url={{ $.Values.agof.agof_repo | quote }}
-          iac_repo_url={{ $.Values.agof.iac_repo | quote }}
+          config_repo_url={{ $.Values.agof.cac_repo | default $.Values.agof.iac_repo | quote }}
 {{- if $.Values.agof.vaultFileKey }}
           base64 -d /pattern-home/agof-vault-file/agof-vault-file > ~/agof_vault.yml
 {{- else }}
@@ -110,9 +110,9 @@ initContainers:
                 [[ -z "$host" ]] && continue
                 host_any=1
                 agof_https_store_credential "$host" "$u" "$p"
-              done < <(agof_unique_git_hosts "$agof_repo_url" "$iac_repo_url")
+              done < <(agof_unique_git_hosts "$agof_repo_url" "$config_repo_url")
               if [[ -z "$host_any" ]]; then
-                echo "agof.gitAuthSecret: could not parse git host from agof_repo or iac_repo for HTTPS credentials" >&2
+                echo "agof.gitAuthSecret: could not parse git host from agof_repo or config repo URL for HTTPS credentials" >&2
                 exit 1
               fi
             elif [[ -f "$GIT_AUTH_DIR/token" ]] && [[ ! -f "$GIT_AUTH_DIR/username" ]]; then
@@ -123,9 +123,9 @@ initContainers:
                 host_any=1
                 u="$(agof_https_user_for_style "$host" "$https_style")"
                 agof_https_store_credential "$host" "$u" "$p"
-              done < <(agof_unique_git_hosts "$agof_repo_url" "$iac_repo_url")
+              done < <(agof_unique_git_hosts "$agof_repo_url" "$config_repo_url")
               if [[ -z "$host_any" ]]; then
-                echo "agof.gitAuthSecret: could not parse git host from agof_repo or iac_repo for HTTPS token" >&2
+                echo "agof.gitAuthSecret: could not parse git host from agof_repo or config repo URL for HTTPS token" >&2
                 exit 1
               fi
             fi
