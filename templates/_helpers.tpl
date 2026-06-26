@@ -131,8 +131,13 @@ initContainers:
             fi
           fi
 {{- end }}
+{{- if $.Values.agof.gitHttpsSslVerify | default true }}
           git clone --recurse-submodules --single-branch --branch "{{ $.Values.agof.agof_revision }}" \
             -- "$agof_repo_url" /pattern-home/agof_repo
+{{- else }}
+          git -c http.sslVerify=false clone --recurse-submodules --single-branch --branch "{{ $.Values.agof.agof_revision }}" \
+            -- "$agof_repo_url" /pattern-home/agof_repo
+{{- end }}
     volumeMounts:
       - name: agof-scratch-space
         mountPath: /pattern-home
