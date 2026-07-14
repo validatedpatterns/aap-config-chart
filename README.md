@@ -1,6 +1,6 @@
 # aap-config
 
-![Version: 0.2.6](https://img.shields.io/badge/Version-0.2.6-informational?style=flat-square)
+![Version: 0.2.7](https://img.shields.io/badge/Version-0.2.7-informational?style=flat-square)
 
 A Helm chart to build and deploy secrets using external-secrets for ansible-edge-gitops
 
@@ -52,6 +52,12 @@ is unset or left at chart defaults; when `cac_*` is explicitly set, it wins over
 `iac_*`.
 
 * v0.2.6: Track v3 of AGOF by default
+
+* v0.2.7: Reconfigure external secrets validation retries. Add configurable
+`validationJob.backoffLimit` (default 20) and reduce `validationJob.activeDeadlineSeconds`
+to 600 (10 min). Run the validation job as an Argo Sync hook at sync-wave 2 with
+`HookSucceeded,BeforeHookCreation` so ExternalSecrets apply in wave 1 before
+validation runs and each sync retry gets a fresh job without OutOfSync drift.
 
 ### Git authentication secret (`agof.gitAuthSecret`)
 
@@ -304,7 +310,8 @@ secrets:
 | secretStore.name | string | `"vault-backend"` |  |
 | serviceAccountName | string | `"aap-config-sa"` |  |
 | serviceAccountNamespace | string | `"aap-config"` |  |
-| validationJob.activeDeadlineSeconds | int | `3600` |  |
+| validationJob.activeDeadlineSeconds | int | `600` |  |
+| validationJob.backoffLimit | int | `20` |  |
 | validationJob.disabled | bool | `false` |  |
 | vp-rbac.clusterRoles.view-routes.rules[0].apiGroups[0] | string | `"route.openshift.io"` |  |
 | vp-rbac.clusterRoles.view-routes.rules[0].resources[0] | string | `"routes"` |  |

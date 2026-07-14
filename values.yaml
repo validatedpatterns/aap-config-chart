@@ -56,7 +56,8 @@ serviceAccountNamespace: aap-config
 # Validation job configuration
 validationJob:
   disabled: false
-  activeDeadlineSeconds: 3600
+  activeDeadlineSeconds: 600
+  backoffLimit: 20
 
 # RBAC configuration using vp-rbac subchart
 vp-rbac:
